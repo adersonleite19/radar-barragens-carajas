@@ -1,0 +1,5 @@
+__pyache__/
+*.py[cod]
+*.bak
+.env
+.DS_Store

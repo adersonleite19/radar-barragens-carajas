@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Regiões, Minas e Barragens — Radar de Carajás</title>
+  <style>
+    :root {
+      --bg: #070d19;
+      --bg-panel: #0d1628;
+      --card: #121d33;
+      --card-inner: #0a1222;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-hover: #0ea5e9;
+      --chip-bg: #1e293b;
+      --border: #24344d;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #0b1324;
+      border-bottom: 1px solid var(--border);
+      padding: 16px 20px;
+    }
+
+    .header-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: inline-block;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .nav-btn {
+      text-decoration: none;
+      color: var(--text);
+      background: var(--chip-bg);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 7px;
+      font-size: 0.86rem;
+      font-weight: 600;
+    }
+
+    .nav-btn:hover,
+    .nav-btn.ativo {
+      background: var(--accent);
+      color: #06101e;
+      border-color: var(--accent);
+    }
+
+    main {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 28px 20px 44px;
+    }
+
+    h1 {
+      font-size: 1.55rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+      color: #f8fafc;
+    }
+
+    .filtros {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 22px;
+    }
+
+    .filtro-btn {
+      background: var(--chip-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .filtro-btn:hover {
+      border-color: var(--accent);
+    }
+
+    .filtro-btn.ativo {
+      background: #0284c7;
+      border-color: #38bdf8;
+      color: #ffffff;
+    }
+
+    .grid-barragens {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 18px;
+    }
+
+    .card-barragem {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .tag-regiao {
+      display: inline-block;
+      background: #172554;
+      color: #93c5fd;
+      border: 1px solid #1d4ed8;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+
+    .card-barragem h2 {
+      font-size: 1.15rem;
+      color: #f8fafc;
+      margin-bottom: 4px;
+    }
+
+    .mina-linha {
+      font-size: 0.9rem;
+      color: #cbd5e1;
+      margin-bottom: 10px;
+    }
+
+    .situacao-linha {
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .situacao-linha strong {
+      color: #e2e8f0;
+    }
+
+    .metricas-box {
+      background: var(--card-inner);
+      border: 1px solid #1e2d45;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.86rem;
+      color: #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .metricas-box strong {
+      color: #f8fafc;
+    }
+
+    .btn-simular-card {
+      width: 100%;
+      background: var(--accent);
+      color: #06101e;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-simular-card:hover {
+      background: var(--accent-hover);
+      color: #ffffff;
+    }
+
+    .status-msg {
+      color: var(--muted);
+      font-size: 0.92rem;
+      padding: 12px 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <a class="brand" href="/">
+        <span class="dot"></span>
+        <span>Radar Carajás • Barragens</span>
+      </a>
+      <nav>
+        <a class="nav-btn" href="/">Início</a>
+        <a class="nav-btn" href="/radar.html">Mapa e Simulador</a>
+        <a class="nav-btn ativo" href="/barragens.html">Regiões e Minas</a>
+        <a class="nav-btn" href="/sobre.html">Como Funciona</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <h1>Regiões, Minas e Situação Atual</h1>
+
+    <div class="filtros" id="filtros-regiao">
+      <button type="button" class="filtro-btn ativo" data-regiao="Todas">Todas</button>
+      <button type="button" class="filtro-btn" data-regiao="Carajás / Parauapebas">Carajás / Parauapebas</button>
+      <button type="button" class="filtro-btn" data-regiao="Salobo">Salobo</button>
+      <button type="button" class="filtro-btn" data-regiao="S11D / Canaã dos Carajás">S11D / Canaã dos Carajás</button>
+      <button type="button" class="filtro-btn" data-regiao="Sossego / Canaã dos Carajás">Sossego / Canaã dos Carajás</button>
+    </div>
+
+    <div id="lista-barragens" class="grid-barragens">
+      <p class="status-msg">Carregando estruturas da região...</p>
+    </div>
+  </main>
+
+  <script>
+    let todasBarragens = [];
+    let regiaoAtual = "Todas";
+
+    function formatarNumero(val) {
+      return Number(val || 0).toLocaleString("pt-BR");
+    }
+
+    function montarRotuloRegiao(b) {
+      const reg = b.regiao || "Carajás";
+      const mun = b.municipio || "Pará";
+      return `${reg} • ${mun}`;
+    }
+
+    function correspondeRegiao(b, filtro) {
+      if (filtro === "Todas") return true;
+      const texto = `${b.regiao || ""} ${b.complexo || ""} ${b.mina || ""} ${b.municipio || ""}`.toLowerCase();
+      return texto.includes(filtro.toLowerCase());
+    }
+
+    function renderizarBarragens() {
+      const container = document.getElementById("lista-barragens");
+      const filtradas = todasBarragens.filter((b) => correspondeRegiao(b, regiaoAtual));
+
+      if (!filtradas.length) {
+        container.innerHTML = `<p class="status-msg">Nenhuma barragem encontrada para "${regiaoAtual}".</p>`;
+        return;
+      }
+
+      container.innerHTML = filtradas.map((b) => {
+        const zasTexto = b.possui_zas ? "Sim" : "Não";
+        const idEscapado = encodeURIComponent(b.id || "");
+        return `
+          <article class="card-barragem">
+            <div>
+              <span class="tag-regiao">${montarRotuloRegiao(b)}</span>
+              <h2>${b.nome || "Estrutura sem nome"}</h2>
+              <p class="mina-linha"><strong>Mina:</strong> ${b.mina || b.complexo || "Complexo Carajás"}</p>
+              <p class="situacao-linha">
+                <strong>Situação atual:</strong> ${b.situacao_atual || "Monitoramento contínuo e inspeção periódica."}
+              </p>
+              <div class="metricas-box">
+                <div>Altura: <strong>${formatarNumero(b.altura_m)} m</strong> | Volume: <strong>${formatarNumero(b.volume_m3)} m³</strong></div>
+                <div>CRI: <strong>${b.cri || "-"}</strong> | DPA: <strong>${b.dpa || "-"}</strong> | ZAS: <strong>${zasTexto}</strong></div>
+              </div>
+            </div>
+            <button type="button" class="btn-simular-card" onclick="abrirNoRadar('${idEscapado}')">
+              Acessar no Mapa e Simular
+            </button>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function abrirNoRadar(idCodificado) {
+      window.location.href = `/radar.html?barragem=${idCodificado}`;
+    }
+
+    document.querySelectorAll(".filtro-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".filtro-btn").forEach((b) => b.classList.remove("ativo"));
+        btn.classList.add("ativo");
+        regiaoAtual = btn.dataset.regiao;
+        renderizarBarragens();
+      });
+    });
+
+    async function carregarDados() {
+      const container = document.getElementById("lista-barragens");
+      try {
+        const resp = await fetch("/api/barragens");
+        if (!resp.ok) throw new Error("Falha ao buscar /api/barragens");
+        const data = await resp.json();
+        todasBarragens = Array.isArray(data.barragens) ? data.barragens : [];
+        renderizarBarragens();
+      } catch (err) {
+        container.innerHTML = `<p class="status-msg">Erro ao carregar barragens: ${err.message}</p>`;
+      }
+    }
+
+    carregarDados();
+  </script>
+</body>
+</html>

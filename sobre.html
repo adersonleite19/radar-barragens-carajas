@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Como Funciona — Radar de Barragens Carajás</title>
+  <style>
+    :root {
+      --bg: #070d19;
+      --panel: #0d1628;
+      --card: #121d33;
+      --inner: #09101e;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --border: #24344d;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #0b1324;
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+    }
+
+    .header-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: inline-block;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .nav-btn {
+      text-decoration: none;
+      color: var(--text);
+      background: #1e293b;
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 7px;
+      font-size: 0.86rem;
+      font-weight: 600;
+    }
+
+    .nav-btn:hover,
+    .nav-btn.ativo {
+      background: var(--accent);
+      color: #06101e;
+      border-color: var(--accent);
+    }
+
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 28px 20px 48px;
+    }
+
+    .hero-box {
+      background: linear-gradient(135deg, #0e1a30 0%, #122240 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #172554;
+      color: #93c5fd;
+      border: 1px solid #1d4ed8;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 1.65rem;
+      color: #f8fafc;
+      margin-bottom: 8px;
+    }
+
+    .hero-box p {
+      color: #cbd5e1;
+      font-size: 0.96rem;
+      max-width: 860px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 22px;
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      font-size: 1.22rem;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    h3 {
+      font-size: 1rem;
+      color: #f8fafc;
+      margin: 14px 0 6px;
+    }
+
+    p {
+      color: #cbd5e1;
+      font-size: 0.94rem;
+      margin-bottom: 10px;
+    }
+
+    ul {
+      padding-left: 20px;
+      color: #cbd5e1;
+      font-size: 0.93rem;
+      margin-bottom: 10px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    li strong {
+      color: #f8fafc;
+    }
+
+    code {
+      background: var(--inner);
+      border: 1px solid #1e2d45;
+      padding: 1px 6px;
+      border-radius: 5px;
+      font-size: 0.86rem;
+      color: #7dd3fc;
+    }
+
+    .tabela-wrap {
+      overflow-x: auto;
+      margin-top: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    th, td {
+      border: 1px solid #24344d;
+      padding: 10px 12px;
+      text-align: left;
+    }
+
+    th {
+      background: #0b1324;
+      color: #38bdf8;
+      font-weight: 700;
+    }
+
+    td {
+      background: var(--inner);
+      color: #cbd5e1;
+    }
+
+    .acoes-rodape {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn-acao {
+      text-decoration: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .btn-primario {
+      background: var(--accent);
+      color: #06101e;
+    }
+
+    .btn-secundario {
+      background: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #334155;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <a class="brand" href="/">
+        <span class="dot"></span>
+        <span>Radar Carajás • Barragens</span>
+      </a>
+      <nav>
+        <a class="nav-btn" href="/">Início</a>
+        <a class="nav-btn" href="/radar.html">Mapa e Simulador</a>
+        <a class="nav-btn" href="/barragens.html">Regiões e Minas</a>
+        <a class="nav-btn ativo" href="/sobre.html">Como Funciona</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero-box">
+      <span class="badge">PROJETO ACADÊMICO • TEMA 20</span>
+      <h1>Como Funciona — Radar de Barragens Carajás</h1>
+      <p>
+        Documentação técnica e metodológica do protótipo interativo voltado ao estudo de cenários hipotéticos
+        de rompimento de estruturas de mineração na Região de Carajás (Parauapebas e Canaã dos Carajás — PA),
+        integrando cadastro de barragens, simulação de alcance, ZAS, corredor fluvial, expostos e rotas de fuga.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Alinhamento com o Tema 20</h2>
+      <p>
+        O <strong>Tema 20</strong> propõe simular a mancha de inundação por rompimento hipotético de barragem e
+        quantificar população e infraestrutura expostas. Este sistema atende ao escopo como um protótipo web modular,
+        combinando backend em Python, API REST local e visualização geoespacial interativa com Leaflet.
+      </p>
+
+      <div class="tabela-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Eixo do Tema 20</th>
+              <th>Como o Sistema Atende</th>
+              <th>Escopo / Simplificação Acadêmica</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Dados (SIGBM, MDE, população, edificações, rede viária)</strong></td>
+              <td>Carrega atributos das barragens (altura, volume, CRI, DPA, ZAS, situação), pontos de referência, rotas e camadas base (Satélite, Relevo, Padrão, Escuro).</td>
+              <td>Usa dados estruturados de referência do projeto e estimativas de exposição; não processa MDE raster pesado ou malha viária completa em tempo real.</td>
+            </tr>
+            <tr>
+              <td><strong>Métodos (fluxo a jusante, modelo simplificado, ZAS 10 km / 30 min, rotas de fuga)</strong></td>
+              <td>Calcula volume liberado pelo percentual de ruptura, raio de ZAS, alcance estimado, tempos de chegada pela velocidade do fluxo, trajeto fluvial e pontos/rotas de fuga.</td>
+              <td>Aplica modelo empírico/simplificado e distâncias/rotas de referência para fins de análise e comparação de cenários.</td>
+            </tr>
+            <tr>
+              <td><strong>Entregável (mapa, ZAS, pontos de encontro, rotas de fuga e expostos)</strong></td>
+              <td>Apresenta mapa interativo com camadas alternáveis, resumo de expostos (pontos, ZAS/secundária, população e edificações) e pontos de fuga seguros.</td>
+              <td>Representação conceitual e educativa, indicada para estudos acadêmicos e visualização rápida.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Arquitetura Modular e Papel de Cada Página</h2>
+      <p>
+        Para manter o código organizado e cada tela com um objetivo claro, o projeto separa navegação,
+        catálogo regional, simulação no mapa e documentação:
+      </p>
+      <ul>
+        <li><code>servidor_barragens.py</code>: servidor HTTP em Python que entrega as páginas HTML e expõe os endpoints <code>/api/barragens</code> (GET) e <code>/api/simular-rompimento</code> (POST).</li>
+        <li><code>dados/</code> e <code>simulacao/</code>: módulos e bases de referência responsáveis por carregar as estruturas da região e calcular os cenários de rompimento.</li>
+        <li><code>inicio.html</code> (rota <code>/</code> ou <code>/inicio.html</code>): porta de entrada com apresentação do tema e acesso rápido às funcionalidades.</li>
+        <li><code>barragens.html</code> (rota <code>/barragens.html</code>): catálogo filtrado por região/mina com altura, volume, CRI, DPA, ZAS, situação atual e botão <strong>Acessar no Mapa e Simular</strong> (<code>/radar.html?barragem=ID</code>).</li>
+        <li><code>index.html</code> (rota <code>/radar.html</code>): mapa interativo, controles de percentual de ruptura e velocidade do fluxo, filtro de camadas (Tudo, Atingimento/Fluvial ou Fuga) e quadro de quantitativo de expostos.</li>
+        <li><code>sobre.html</code> (rota <code>/sobre.html</code>): esta página de guia, metodologia e escopo do projeto.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Leitura dos Resultados no Simulador</h2>
+      <ul>
+        <li><strong>Volume liberado (estimado) e alcance:</strong> variam conforme a estrutura escolhida, o percentual de ruptura e a velocidade média configurada.</li>
+        <li><strong>Zona de Autossalvamento (ZAS):</strong> área crítica de referência (regra de 10 km ou 30 minutos), destacada no mapa e no resumo dos pontos atingidos.</li>
+        <li><strong>Quantitativo de expostos:</strong> consolida pontos atingidos na ZAS e na zona secundária, estimativas de população e edificações de referência e quantidade de pontos de fuga seguros.</li>
+        <li><strong>Corredor fluvial e rotas de fuga:</strong> exibe o percurso a jusante/marcos fluviais e permite isolar ou comparar camadas de atingimento e fuga.</li>
+      </ul>
+
+      <div class="acoes-rodape">
+        <a class="btn-acao btn-secundario" href="/">Voltar ao Início</a>
+        <a class="btn-acao btn-secundario" href="/barragens.html">Ver Regiões e Minas</a>
+        <a class="btn-acao btn-primario" href="/radar.html">Abrir Mapa e Simulador</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mapa, Simulador de Rompimento e Rotas de Fuga — Radar de Carajás</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    crossorigin=""
+  />
+  <style>
+    :root {
+      --bg: #070d19;
+      --panel: #0e1729;
+      --inner: #09101e;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --danger: #ef4444;
+      --border: #24344d;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #0b1324;
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+    }
+
+    .header-inner {
+      max-width: 1320px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: inline-block;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .nav-btn {
+      text-decoration: none;
+      color: var(--text);
+      background: #1e293b;
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 7px;
+      font-size: 0.86rem;
+      font-weight: 600;
+    }
+
+    .nav-btn:hover,
+    .nav-btn.ativo {
+      background: var(--accent);
+      color: #06101e;
+      border-color: var(--accent);
+    }
+
+    main {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 1.45rem;
+      margin-bottom: 14px;
+      color: #f8fafc;
+    }
+
+    .layout-radar {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .layout-radar {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .painel-controles {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .campo label {
+      display: block;
+      font-size: 0.84rem;
+      color: #cbd5e1;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    .campo select,
+    .campo input[type="range"] {
+      width: 100%;
+    }
+
+    .campo select {
+      background: var(--inner);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.9rem;
+    }
+
+    .btn-simular {
+      width: 100%;
+      background: var(--danger);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-simular:hover {
+      background: #dc2626;
+    }
+
+    .resultado-box {
+      background: var(--inner);
+      border: 1px solid #1e2d45;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 0.86rem;
+      color: #e2e8f0;
+      max-height: 460px;
+      overflow-y: auto;
+    }
+
+    .resultado-box p {
+      margin-bottom: 6px;
+    }
+
+    .resultado-box ul {
+      padding-left: 18px;
+      margin-bottom: 8px;
+    }
+
+    .resultado-box li {
+      margin-bottom: 4px;
+      font-size: 0.82rem;
+      color: #cbd5e1;
+    }
+
+    .quant-box {
+      margin: 8px 0;
+      padding: 8px 10px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+    }
+
+    .mapa-wrap {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    #mapa {
+      width: 100%;
+      height: 620px;
+      background: #0b1324;
+    }
+
+    .status-topo {
+      padding: 8px 12px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      background: #0b1324;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <a class="brand" href="/">
+        <span class="dot"></span>
+        <span>Radar Carajás • Barragens</span>
+      </a>
+      <nav>
+        <a class="nav-btn" href="/">Início</a>
+        <a class="nav-btn ativo" href="/radar.html">Mapa e Simulador</a>
+        <a class="nav-btn" href="/barragens.html">Regiões e Minas</a>
+        <a class="nav-btn" href="/sobre.html">Como Funciona</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="sec-simulador">
+    <h1>Mapa, Simulador de Rompimento e Rotas de Fuga</h1>
+
+    <div class="layout-radar">
+      <aside class="painel-controles">
+        <div class="campo">
+          <label for="select-barragem">Barragem / Estrutura</label>
+          <select id="select-barragem"></select>
+        </div>
+
+        <div class="campo">
+          <label for="range-ruptura">
+            Percentual de Ruptura: <strong id="lbl-ruptura">100%</strong>
+          </label>
+          <input id="range-ruptura" type="range" min="10" max="100" step="5" value="100" />
+        </div>
+
+        <div class="campo">
+          <label for="range-velocidade">
+            Velocidade Média do Fluxo: <strong id="lbl-velocidade">22 km/h</strong>
+          </label>
+          <input id="range-velocidade" type="range" min="5" max="60" step="1" value="22" />
+        </div>
+
+        <div class="campo">
+          <label for="select-camada">Camada de Análise (Atingimento / Fuga)</label>
+          <select id="select-camada">
+            <option value="tudo">Mostrar Tudo (Atingimento + Rotas de Fuga)</option>
+            <option value="atingimento">Apenas Atingimento e Corredor Fluvial</option>
+            <option value="fuga">Apenas Pontos e Rotas de Fuga</option>
+          </select>
+        </div>
+
+        <button type="button" class="btn-simular" id="btn-simular">
+          Calcular Mancha e Trajeto Fluvial
+        </button>
+
+        <div id="resultado-simulacao" class="resultado-box">
+          <p style="color:#94a3b8;">Selecione uma estrutura e clique em calcular para ver ZAS, expostos, corredor fluvial e rotas de fuga.</p>
+        </div>
+      </aside>
+
+      <div class="mapa-wrap">
+        <div id="mapa"></div>
+        <div id="status-mapa" class="status-topo">Pronto.</div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script>
+    const mapa = L.map("mapa").setView([-6.04, -49.95], 10);
+
+    const camadaSatelite = L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      { attribution: "Tiles &copy; Esri", maxZoom: 19 }
+    );
+    const camadaRelevo = L.tileLayer(
+      "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+      { attribution: "&copy; OpenTopoMap", maxZoom: 17 }
+    );
+    const camadaPadrao = L.tileLayer(
+      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      { attribution: "&copy; OpenStreetMap", maxZoom: 19 }
+    );
+    const camadaEscura = L.tileLayer(
+      "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+      { attribution: "&copy; CARTO", maxZoom: 19 }
+    );
+
+    camadaSatelite.addTo(mapa);
+    L.control.layers(
+      {
+        "Satélite (Real)": camadaSatelite,
+        "Relevo / Topografia": camadaRelevo,
+        "Mapa Padrão": camadaPadrao,
+        "Modo Escuro (Radar)": camadaEscura,
+      },
+      null,
+      { position: "topright" }
+    ).addTo(mapa);
+
+    const grupoCamadas = L.layerGroup().addTo(mapa);
+    let barragensCache = [];
+    let ultimaSimulacao = null;
+
+    const selectBarragem = document.getElementById("select-barragem");
+    const rangeRuptura = document.getElementById("range-ruptura");
+    const rangeVelocidade = document.getElementById("range-velocidade");
+    const selectCamada = document.getElementById("select-camada");
+    const lblRuptura = document.getElementById("lbl-ruptura");
+    const lblVelocidade = document.getElementById("lbl-velocidade");
+    const resultadoBox = document.getElementById("resultado-simulacao");
+    const statusMapa = document.getElementById("status-mapa");
+
+    rangeRuptura.addEventListener("input", () => {
+      lblRuptura.textContent = `${rangeRuptura.value}%`;
+    });
+    rangeVelocidade.addEventListener("input", () => {
+      lblVelocidade.textContent = `${rangeVelocidade.value} km/h`;
+    });
+    selectCamada.addEventListener("change", () => {
+      if (ultimaSimulacao) desenharSimulacao(ultimaSimulacao);
+    });
+
+    function limparCamadas() {
+      grupoCamadas.clearLayers();
+    }
+
+    function desenharSimulacao(data) {
+      limparCamadas();
+      const b = data.barragem;
+      const res = data.resultados;
+      const camadaFiltro = selectCamada.value;
+
+      if (b && b.lat && b.lon) {
+        L.circleMarker([b.lat, b.lon], {
+          radius: 8,
+          color: "#ffffff",
+          weight: 2,
+          fillColor: "#ef4444",
+          fillOpacity: 0.95,
+        })
+          .bindPopup(`<strong>${b.nome}</strong><br/>Mina: ${b.mina || "-"}`)
+          .addTo(grupoCamadas);
+
+        if (camadaFiltro !== "fuga") {
+          L.circle([b.lat, b.lon], {
+            radius: (res.zas_raio_km || 10) * 1000,
+            color: "#ef4444",
+            weight: 2,
+            fillColor: "#ef4444",
+            fillOpacity: 0.14,
+          }).addTo(grupoCamadas);
+
+          L.circle([b.lat, b.lon], {
+            radius: (res.alcance_max_km || 20) * 1000,
+            color: "#f59e0b",
+            weight: 2,
+            dashArray: "6,6",
+            fillColor: "#f59e0b",
+            fillOpacity: 0.08,
+          }).addTo(grupoCamadas);
+        }
+      }
+
+      if (camadaFiltro !== "fuga") {
+        (data.rotas_atingimento || []).forEach((r) => {
+          if (Array.isArray(r.coordenadas) && r.coordenadas.length >= 2) {
+            L.polyline(r.coordenadas, { color: "#f97316", weight: 2.5, opacity: 0.85 })
+              .bindPopup(`${r.destino} (${r.distancia_km} km • ~${r.tempo_chegada_min} min)`)
+              .addTo(grupoCamadas);
+          }
+        });
+
+        (data.pontos_afetados || []).forEach((p) => {
+          L.circleMarker([p.lat, p.lon], {
+            radius: 6,
+            color: "#0f172a",
+            weight: 1.5,
+            fillColor: p.nivel && p.nivel.includes("ZAS") ? "#ef4444" : "#fbbf24",
+            fillOpacity: 0.95,
+          })
+            .bindPopup(`<strong>${p.nome}</strong><br/>${p.nivel} • ${p.distancia_km} km • ~${p.tempo_chegada_min} min`)
+            .addTo(grupoCamadas);
+        });
+
+        if (Array.isArray(data.rota_fluvial) && data.rota_fluvial.length >= 2) {
+          L.polyline(data.rota_fluvial, { color: "#38bdf8", weight: 3, dashArray: "4,6", opacity: 0.9 })
+            .bindPopup("Corredor Fluvial de Referência")
+            .addTo(grupoCamadas);
+        }
+      }
+
+      if (camadaFiltro !== "atingimento") {
+        (data.rotas_fuga || []).forEach((rf) => {
+          if (Array.isArray(rf.coordenadas) && rf.coordenadas.length >= 2) {
+            L.polyline(rf.coordenadas, { color: "#22c55e", weight: 2.5, dashArray: "6,4", opacity: 0.9 })
+              .bindPopup(`Rota de Fuga: ${rf.destino} (${rf.distancia_km} km)`)
+              .addTo(grupoCamadas);
+          }
+        });
+
+        (data.pontos_fuga || []).forEach((pf) => {
+          L.circleMarker([pf.lat, pf.lon], {
+            radius: 6,
+            color: "#0f172a",
+            weight: 1.5,
+            fillColor: pf.seguro ? "#22c55e" : "#f59e0b",
+            fillOpacity: 0.95,
+          })
+            .bindPopup(`<strong>${pf.nome}</strong><br/>${pf.status} • ${pf.distancia_barragem_km} km`)
+            .addTo(grupoCamadas);
+        });
+      }
+
+      if (b && b.lat && b.lon) {
+        mapa.setView([b.lat, b.lon], 10);
+      }
+    }
+
+    function renderizarResultado(data) {
+      const b = data.barragem || {};
+      const res = data.resultados || {};
+      const q = data.quantitativo_expostos || {};
+      const afetados = data.pontos_afetados || [];
+      const fugas = data.pontos_fuga || [];
+      const marcos = data.marcos_fluviais || [];
+
+      const htmlQuantitativo = `
+        <div class="quant-box">
+          <p style="margin-bottom:4px; color:#38bdf8;"><strong>Quantitativo Estimado de Expostos</strong></p>
+          <p style="font-size:0.8rem; margin-bottom:2px;">
+            Pontos atingidos: <strong>${q.total_pontos_atingidos ?? afetados.length}</strong>
+            (ZAS: <strong>${q.pontos_na_zas ?? 0}</strong> | Secundária: <strong>${q.pontos_zona_secundaria ?? 0}</strong>)
+          </p>
+          <p style="font-size:0.8rem; margin-bottom:2px;">
+            População ref. exposta: <strong>${Number(q.populacao_total_est ?? 0).toLocaleString("pt-BR")} hab.</strong>
+          </p>
+          <p style="font-size:0.8rem; margin-bottom:2px;">
+            Edificações ref. expostas: <strong>${Number(q.edificacoes_total_est ?? 0).toLocaleString("pt-BR")}</strong>
+          </p>
+          <p style="font-size:0.8rem; margin-bottom:0; color:#86efac;">
+            Pontos de fuga seguros: <strong>${q.pontos_fuga_seguros ?? 0}</strong>
+          </p>
+        </div>
+      `;
+
+      const liAfetados = afetados.length
+        ? afetados.map((p) => `<li>${p.nome} (${p.distancia_km} km • ~${p.tempo_chegada_min} min • ${p.nivel})</li>`).join("")
+        : `<li>Nenhum ponto de referência dentro do raio simulado.</li>`;
+
+      const liFugas = fugas.length
+        ? fugas.map((pf) => `<li>${pf.nome} (${pf.distancia_barragem_km} km • ${pf.status})</li>`).join("")
+        : `<li>Sem pontos de fuga cadastrados.</li>`;
+
+      const liFluvial = marcos.length
+        ? marcos.map((m) => `<li>${m.nome} (${m.distancia_acumulada_km} km • ${m.atingido_no_alcance ? "No alcance" : "A jusante"})</li>`).join("")
+        : `<li>Sem marcos fluviais.</li>`;
+
+      resultadoBox.innerHTML = `
+        <p><strong>${b.nome || "Barragem"}</strong> (${b.mina || b.complexo || "-"})</p>
+        <p>Volume liberado (est.): <strong>${Number(res.volume_liberado_m3 || 0).toLocaleString("pt-BR")} m³</strong></p>
+        <p>Raio ZAS: <strong>${res.zas_raio_km} km</strong> | Alcance estimado: <strong>${res.alcance_max_km} km</strong></p>
+        ${htmlQuantitativo}
+        <p><strong>Pontos atingidos no alcance estimado:</strong></p>
+        <ul>${liAfetados}</ul>
+        <p><strong>Pontos de fuga:</strong></p>
+        <ul>${liFugas}</ul>
+        <p><strong>Corredor fluvial de referência:</strong></p>
+        <ul>${liFluvial}</ul>
+      `;
+    }
+
+    async function simularRompimento() {
+      const payload = {
+        id_barragem: selectBarragem.value,
+        percentual_ruptura: Number(rangeRuptura.value),
+        velocidade_kmh: Number(rangeVelocidade.value),
+      };
+
+      statusMapa.textContent = "Calculando simulação...";
+      try {
+        const resp = await fetch("/api/simular-rompimento", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!resp.ok) throw new Error("Falha ao simular rompimento");
+        const data = await resp.json();
+        ultimaSimulacao = data;
+        renderizarResultado(data);
+        desenharSimulacao(data);
+        statusMapa.textContent = `Simulação concluída: ${data.barragem?.nome || ""}`;
+      } catch (err) {
+        statusMapa.textContent = `Erro: ${err.message}`;
+      }
+    }
+
+    document.getElementById("btn-simular").addEventListener("click", simularRompimento);
+
+    async function init() {
+      try {
+        const resp = await fetch("/api/barragens");
+        const data = await resp.json();
+        barragensCache = Array.isArray(data.barragens) ? data.barragens : [];
+
+        selectBarragem.innerHTML = barragensCache
+          .map((b) => `<option value="${b.id}">${b.nome} — ${b.mina || b.complexo || ""}</option>`)
+          .join("");
+
+        const params = new URLSearchParams(window.location.search);
+        const barragemUrl = params.get("barragem");
+        if (barragemUrl && barragensCache.some((b) => b.id === barragemUrl)) {
+          selectBarragem.value = barragemUrl;
+        }
+
+        if (barragensCache.length) {
+          await simularRompimento();
+        }
+      } catch (err) {
+        statusMapa.textContent = `Erro ao carregar barragens: ${err.message}`;
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
